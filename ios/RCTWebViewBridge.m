@@ -48,6 +48,8 @@ NSString *const RCTWebViewBridgeSchema = @"wvb";
 @property (nonatomic, copy) RCTDirectEventBlock onLoadingError;
 @property (nonatomic, copy) RCTDirectEventBlock onShouldStartLoadWithRequest;
 @property (nonatomic, copy) RCTDirectEventBlock onBridgeMessage;
+@property (nonatomic, copy) RCTDirectEventBlock onHighlight;
+@property (nonatomic, copy) RCTDirectEventBlock onShare;
 
 @end
 
@@ -309,6 +311,30 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   else if (_onLoadingFinish && !webView.loading && ![webView.request.URL.absoluteString isEqualToString:@"about:blank"]) {
     _onLoadingFinish([self baseEvent]);
   }
+    
+    [self becomeFirstResponder];
+    UIMenuItem *customMenuItem1 = [[UIMenuItem alloc] initWithTitle:@"Altını Çiz" action:@selector(customAction1:)];
+    UIMenuItem *customMenuItem2 = [[UIMenuItem alloc] initWithTitle:@"Paylaş" action:@selector(customAction2:)];
+    [[UIMenuController sharedMenuController] setMenuItems:[NSArray arrayWithObjects:customMenuItem1, customMenuItem2, nil]];
+    [[UIMenuController sharedMenuController] update];
+}
+
+
+-(void)customAction1:(UIMenuItem*)item
+{
+    if (_onHighlight) {
+        NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+        [event addEntriesFromDictionary:@{}];
+    _onHighlight(event);
+    }
+}
+-(void)customAction2:(UIMenuItem*)item
+{
+    if (_onShare) {
+        NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+        [event addEntriesFromDictionary:@{}];
+    _onShare(event);
+    }
 }
 
 - (NSArray*)stringArrayJsonToArray:(NSString *)message
@@ -403,5 +429,27 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     }(window));
   );
 }
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+    
+    if (action == @selector(customAction1:) || action == @selector(customAction2:))
+    {
+        return YES;
+    }
+    
+    return NO;
+    
+}
+
+- (BOOL)canResignFirstResponder {
+    return NO;
+}
+
+- (BOOL)canBecomeFirstResponder {
+    return YES;
+}
+
+
 
 @end
