@@ -44,5 +44,7 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
 - (void)goBack;
 - (void)reload;
 - (void)sendToBridge:(NSString *)message;
+- (void)unhighlight:(int)top  withLeft:(int)left;
+- (void)closeUnHighlightPopUp;
 
 @end
