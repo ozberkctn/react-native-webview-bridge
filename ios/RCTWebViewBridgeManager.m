@@ -53,6 +53,7 @@ RCT_REMAP_VIEW_PROPERTY(mediaPlaybackRequiresUserAction, _webView.mediaPlaybackR
 RCT_EXPORT_VIEW_PROPERTY(onBridgeMessage, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onHighlight, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onShare, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onUnHighlight, RCTDirectEventBlock)
 
 - (NSDictionary<NSString *, id> *)constantsToExport
 {
@@ -155,6 +156,32 @@ RCT_EXPORT_METHOD(startLoadWithResult:(BOOL)result lockIdentifier:(NSInteger)loc
     RCTLogWarn(@"startLoadWithResult invoked with invalid lockIdentifier: "
                "got %zd, expected %zd", lockIdentifier, _shouldStartLoadLock.condition);
   }
+}
+
+
+
+RCT_EXPORT_METHOD(unhighlight:(nonnull NSNumber *)reactTag withTop:(int)top  withLeft:(int)left)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTWebViewBridge *> *viewRegistry) {
+        RCTWebViewBridge *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RCTWebViewBridge class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RCTWebViewBridge, got: %@", view);
+        } else {
+            [view unhighlight:top withLeft:left];
+        }}];
+   
+}
+
+RCT_EXPORT_METHOD(closeUnHighlightPopUp:(nonnull NSNumber *)reactTag)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTWebViewBridge *> *viewRegistry) {
+        RCTWebViewBridge *view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RCTWebViewBridge class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RCTWebViewBridge, got: %@", view);
+        } else {
+            [view closeUnHighlightPopUp];
+        }}];
+    
 }
 
 @end
