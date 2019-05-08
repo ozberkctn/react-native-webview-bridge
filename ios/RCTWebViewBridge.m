@@ -31,6 +31,8 @@
 //NSString *const RCTJSNavigationScheme = @"react-js-navigation";
 NSString *const RCTWebViewBridgeSchema = @"wvb";
 
+BOOL showRemoveMenuItem = false;
+
 // runtime trick to remove UIWebview keyboard default toolbar
 // see: http://stackoverflow.com/questions/19033292/ios-7-uiwebview-keyboard-issue/19042279#19042279
 @interface _SwizzleHelper : NSObject @end
@@ -50,6 +52,7 @@ NSString *const RCTWebViewBridgeSchema = @"wvb";
 @property (nonatomic, copy) RCTDirectEventBlock onBridgeMessage;
 @property (nonatomic, copy) RCTDirectEventBlock onHighlight;
 @property (nonatomic, copy) RCTDirectEventBlock onShare;
+@property (nonatomic, copy) RCTDirectEventBlock onUnHighlight;
 
 @end
 
@@ -315,7 +318,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     [self becomeFirstResponder];
     UIMenuItem *customMenuItem1 = [[UIMenuItem alloc] initWithTitle:@"Altını Çiz" action:@selector(customAction1:)];
     UIMenuItem *customMenuItem2 = [[UIMenuItem alloc] initWithTitle:@"Paylaş" action:@selector(customAction2:)];
-    [[UIMenuController sharedMenuController] setMenuItems:[NSArray arrayWithObjects:customMenuItem1, customMenuItem2, nil]];
+    UIMenuItem *customMenuItem3 = [[UIMenuItem alloc] initWithTitle:@"Kaldır" action:@selector(customAction3:)];
+    [[UIMenuController sharedMenuController] setMenuItems:[NSArray arrayWithObjects:customMenuItem1, customMenuItem2,customMenuItem3, nil]];
     [[UIMenuController sharedMenuController] update];
 }
 
@@ -336,6 +340,16 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     _onShare(event);
     }
 }
+-(void)customAction3:(UIMenuItem*)item
+{
+    showRemoveMenuItem = NO;
+    if (_onUnHighlight) {
+        NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+        [event addEntriesFromDictionary:@{}];
+        _onUnHighlight(event);
+    }
+}
+
 
 - (NSArray*)stringArrayJsonToArray:(NSString *)message
 {
@@ -433,7 +447,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
 {
     
-    if (action == @selector(customAction1:) || action == @selector(customAction2:))
+    if(showRemoveMenuItem && action == @selector(customAction3:)){
+        return YES;
+    }
+    if (!showRemoveMenuItem && (action == @selector(customAction1:) || action == @selector(customAction2:)))
     {
         return YES;
     }
@@ -449,6 +466,23 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (BOOL)canBecomeFirstResponder {
     return YES;
 }
+
+- (void)unhighlight:(int)top  withLeft:(int)left {
+    showRemoveMenuItem = YES;
+    CGRect targetRectangle = CGRectMake(left,top, 100, 100);
+    [[UIMenuController sharedMenuController] setTargetRect:targetRectangle
+                                                    inView:self];
+    [[UIMenuController sharedMenuController]
+     setMenuVisible:YES animated:YES];
+}
+
+- (void)closeUnHighlightPopUp{
+    showRemoveMenuItem = NO;
+    [[UIMenuController sharedMenuController]
+     setMenuVisible:NO animated:NO];
+}
+
+
 
 
 
