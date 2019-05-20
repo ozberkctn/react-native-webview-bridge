@@ -234,6 +234,15 @@ var WebViewBridge = createReactClass({
   sendToBridge: function (message: string) {
     WebViewBridgeManager.sendToBridge(this.getWebViewBridgeHandle(), message);
   },
+  closeUnHighlightPopUp: function () {
+    WebViewBridgeManager.closeUnHighlightPopUp(this.getWebViewBridgeHandle());
+  },
+  closeUnHighlightPopUp: function () {
+    WebViewBridgeManager.closeUnHighlightPopUp(this.getWebViewBridgeHandle());
+  },
+  unhighlight: function (top,left) {
+    WebViewBridgeManager.unhighlight(this.getWebViewBridgeHandle(),top,left);
+  },
 
   /**
    * We return an event with a bunch of fields including:
